@@ -1,0 +1,5 @@
+function c = objFuncDeriv(x)
+% Objective function definition
+c(1) = 2*x(1)-2*x(2)-3;
+c(2) = 4*x(2)-2*x(1)-6;
+end
