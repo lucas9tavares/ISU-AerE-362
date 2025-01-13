@@ -1,0 +1,102 @@
+% run script for steepest-descent optimization
+clear variables;
+close all;
+clc;
+
+% define input parameters
+% initial design variable
+x=[-4 4 0];
+
+% x1Hist and x2Hist store the history of x during optimization
+x1Hist=[x(1)];
+x2Hist=[x(2)];
+x3Hist=[x(3)];
+fHist=[objFunc(x)];
+nHist=[0];
+% nFuncEvals is the number of function evaluations
+nFuncEvals = 0;
+% initialize iter
+iter = 0;
+% main loop, we do maximal 100 optimization iterations
+for n=0:100
+    % Step 1: Calculate the objective function value (f) at x
+    f = objFunc(x);
+    % Step 2: Calculate the gradient (c) at x
+    c = objFuncDeriv(x);
+    % Step 3: Check if norm of gradient is less than 1e-4 (tolerance)
+    if norm(c) <= 1e-4
+        break;
+    else
+        % *************************************************
+        % Write some codes here to update x using steepest-descent
+        % *************************************************
+        % Step 4:
+        %    Set the search direction d as d = -c
+        % Step 5:
+        %    Call the golden function to calculate alphaMin to minimize f
+        %    along the search direction
+        % Hint:
+        %    Use alphaL=0, alphaU=10, tol=1e-4, and maxit=50 for the golden
+        %    function. Also, provide x and d to the golden function. The main
+        %    output that will be used later is the alpha value (alphaMin) that
+        %    minimize the f function along the search direction d and the
+        %    number of iterations used in the line search (iter)
+        % Step 6:
+        %    Update x based on the alphaMin value computed from step 5.
+        % Hint:
+        %    Use this formulation to update x: x = x + alphaMin * d;
+        d = -c;
+
+        alphaL=0; alphaU=10; tol=1e-4; maxit=50;
+        [alphaMin,fMin,I,iter] = golden(x,d,alphaL,alphaU,tol,maxit);
+
+        x = x + alphaMin * d;
+    end
+    
+    % x has been updated, we need to increment the number of function
+    % evaluations, store the history of design variables x and print some 
+    % info to the screen.
+    nFuncEvals = nFuncEvals + iter + 1;
+    disp("optIter: "+num2str(n)+ ...
+        " nFuncEvals: "+num2str(nFuncEvals)+ ...
+        " f: "+num2str(f) + ...
+        " x1: "+num2str(x(1))+ ...
+        " x2: "+num2str(x(2))+ ...
+        " x3: "+num2str(x(3)));
+    x1Hist=[x1Hist;x(1)];
+    x2Hist=[x2Hist;x(2)];
+    x3Hist=[x3Hist;x(3)];
+    fHist=[fHist;f];
+    nHist=[nHist;n];
+    
+end
+% Optimization is done!
+
+%{
+% plot results
+figure(1)
+[x1,x2] = meshgrid(-10:0.2:10,-10:0.2:10);
+sizeX = size(x1);
+fC = x1;
+for i = 1:sizeX(1)
+    for j = 1:sizeX(2)
+        fC(i,j) = objFunc([x1(i,j),x2(i,j)]);
+    end
+end
+fc=contour(x1,x2,fC,[0:50:500],'k');
+clabel(fc)
+hold on;
+plot(x1Hist, x2Hist,"-ro", "markerfacecolor","r")
+plot(x1Hist, x2Hist)
+xlim([-10 10]);
+ylim([-10 10]);
+set(gca,'FontSize',20,'FontName','Times New Roman');
+xlabel('x1');
+ylabel('x2');
+
+figure(2)
+plot(nHist, fHist, "-ko", "Linewidth", 2);
+set(gca,'FontSize',20,'FontName','Times New Roman');
+xlabel('Iteration');
+ylabel('Objective Function');
+%}
